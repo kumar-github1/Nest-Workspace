@@ -3,6 +3,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  RequestTimeoutException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/createUser.dto';
 import { AuthService } from 'src/auth/auth.service';
@@ -34,13 +35,20 @@ export class UsersService {
   // }];
 
   async getUsers() {
-    const environment = this.configService.get('ENV_MODE');
-    console.log(environment);
-    return await this.userRepository.find({
-      relations: {
-        // profile : true
-      },
-    });
+    // const environment = this.configService.get('ENV_MODE');
+    // console.log(environment);
+    try {
+      return await this.userRepository.find({
+        relations: {
+          // profile : true
+        },
+      });
+    } catch (error) {
+      throw new RequestTimeoutException(
+        'Timeout cannot connect to the host.',
+        'Cannot connect to the host',
+      );
+    }
   }
 
   async getUserById(id: number) {
