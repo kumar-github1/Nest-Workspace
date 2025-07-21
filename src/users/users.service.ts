@@ -37,7 +37,6 @@ export class UsersService {
         return await this.userRepository.find({
             relations:{
                 // profile : true
-
             }
         })
     }
