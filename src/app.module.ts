@@ -8,33 +8,38 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfileModule } from './profile/profile.module';
 import { HashtagModule } from './hashtag/hashtag.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { appConfig } from './config/app.config';
+import appConfig from './config/app.config';
+import databaseConfig from './config/database.config';
 const env = process.env.NODE_ENV;
 
 @Module({
-  imports: [UsersModule,
+  imports: [
+    UsersModule,
     TweetModule,
     AuthModule,
     ConfigModule.forRoot({
-      isGlobal : true,
+      isGlobal: true,
       envFilePath: !env ? `.env` : `.env.${env.trim()}`,
-      load: [appConfig]
+      load: [appConfig, databaseConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService : ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         host: configService.get('database.host'),
         port: configService.get('database.port'),
-        database:configService.get('database.dbname'),
-        username: "postgres",
-        password: configService.get("database.dbpass"),
-        type: "postgres",
+        database: configService.get('database.dbname'),
+        username: 'postgres',
+        password: configService.get('database.dbpass'),
+        type: 'postgres',
         autoLoadEntities: true,
-        synchronize: true
-      })
-    }), ProfileModule, HashtagModule],
+        synchronize: true,
+      }),
+    }),
+    ProfileModule,
+    HashtagModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
