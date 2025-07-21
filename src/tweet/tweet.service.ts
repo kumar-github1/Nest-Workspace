@@ -7,7 +7,8 @@ import { Tweet } from './entities/tweet.entity';
 import { Repository } from 'typeorm';
 import { Hashtag } from 'src/hashtag/entities/hashtag.entity';
 import { HashtagService } from 'src/hashtag/hashtag.service';
-
+import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { TweetQueryDto } from './dto/tweet-query.dto';
 @Injectable()
 export class TweetService {
   constructor(
@@ -20,9 +21,12 @@ export class TweetService {
   async createTweet(createTweetDto: CreateTweetDto) {
     let user = await this.userService.getUserById(createTweetDto.userId);
     if (!user) throw new Error('user not found');
-    let hashtags: Hashtag[] = await this.hashtagService.findHashtags(
-      createTweetDto.hashtags,
-    );
+    let hashtags = [];
+    if (createTweetDto.hashtags) {
+      let hashtags = await this.hashtagService.findHashtags(
+        createTweetDto.hashtags,
+      );
+    }
     let tweet = this.tweetRepository.create({
       ...createTweetDto,
       user,
@@ -31,15 +35,16 @@ export class TweetService {
     return await this.tweetRepository.save(tweet);
   }
 
-  findAll() {
-    return this.tweetRepository.find({
+  async findAll() {
+    return await this.tweetRepository.find({
       relations: {
         user: true,
       },
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, paginationQueryDto: PaginationQueryDto) {
+    // console.log(paginationQueryDto);
     let user = await this.userService.getUserById(id);
     if (!user)
       throw new NotFoundException(`The user with userId ${id} is not found`);
@@ -52,6 +57,8 @@ export class TweetService {
       relations: {
         user: true,
       },
+      skip: (paginationQueryDto.page - 1) * paginationQueryDto.limit,
+      take: paginationQueryDto.limit,
     });
   }
 
