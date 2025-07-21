@@ -2,13 +2,18 @@ import { UsersService } from './../users/users.service';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { ConfigType } from '@nestjs/config';
+import authConfig from './config/auth.config';
 
 @Injectable()
 export class AuthService {
-  constructor() { }
+  constructor(
+    @Inject(authConfig.KEY)
+    private readonly authConfiguration: ConfigType<typeof authConfig>,
+  ) {}
   public isAuth: boolean = false;
   authenticate(mail: string, pwd: string) {
-
+    console.log(this.authConfiguration);
   }
 
   findAll() {
