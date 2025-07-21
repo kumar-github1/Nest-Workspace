@@ -7,8 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfileModule } from './profile/profile.module';
 import { HashtagModule } from './hashtag/hashtag.module';
-import { ConfigModule } from '@nestjs/config';
-
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { appConfig } from './config/app.config';
 const env = process.env.NODE_ENV;
 
 @Module({
@@ -17,17 +17,18 @@ const env = process.env.NODE_ENV;
     AuthModule,
     ConfigModule.forRoot({
       isGlobal : true,
-      envFilePath: !env ? `.env` : `.env.${env.trim()}`
+      envFilePath: !env ? `.env` : `.env.${env.trim()}`,
+      load: [appConfig]
     }),
     TypeOrmModule.forRootAsync({
-      imports: [],
-      inject: [],
-      useFactory: () => ({
-        host: "localhost",
-        port: 5432,
-        database: "nestjs",
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService : ConfigService) => ({
+        host: configService.get('database.host'),
+        port: configService.get('database.port'),
+        database:configService.get('database.dbname'),
         username: "postgres",
-        password: "kumar...",
+        password: configService.get("database.dbpass"),
         type: "postgres",
         autoLoadEntities: true,
         synchronize: true
