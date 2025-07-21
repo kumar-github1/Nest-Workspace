@@ -1,6 +1,8 @@
 import {
   ConflictException,
   forwardRef,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   RequestTimeoutException,
@@ -12,6 +14,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Profile } from 'src/profile/entities/profile.entity';
 import { ConfigService } from '@nestjs/config';
+import { Console } from 'console';
+import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 @Injectable()
 export class UsersService {
   constructor(
@@ -44,19 +48,32 @@ export class UsersService {
         },
       });
     } catch (error) {
-      throw new RequestTimeoutException(
-        'Timeout cannot connect to the host.',
-        'Cannot connect to the host',
-      );
+      if (error.code === 'ECONNREFUSED') {
+        throw new RequestTimeoutException(
+          'Timeout cannot connect to the host.',
+          'Cannot connect to the host',
+        );
+      }
+      console.log(error);
     }
   }
 
   async getUserById(id: number) {
-    return await this.userRepository.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          id,
+        },
+      });
+      if (!user)
+        throw new HttpException(
+          'The user is not found in the database',
+          HttpStatus.NOT_FOUND,
+        );
+      return user;
+    } catch (error) {
+      throw error;
+    }
   }
   public async createUser(userDto: CreateUserDto) {
     //create profile
