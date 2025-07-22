@@ -8,12 +8,15 @@ import {
   Post,
   Query,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
+import { ActivateGuard } from 'src/auth/guards/activateGuard';
 
 @Controller('users')
+@UseGuards(ActivateGuard)
 export class UsersController {
   constructor(private userService: UsersService) {}
 
