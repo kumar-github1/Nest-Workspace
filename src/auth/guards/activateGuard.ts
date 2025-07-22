@@ -33,7 +33,7 @@ export class ActivateGuard implements CanActivate {
       request['user'] = payload;
       console.log(payload);
     } catch (error) {
-      console.log(error);
+      throw new UnauthorizedException();
     }
     return true;
   }
