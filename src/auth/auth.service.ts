@@ -4,16 +4,28 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { ConfigType } from '@nestjs/config';
 import authConfig from './config/auth.config';
+import { CreateUserDto } from 'src/users/dto/createUser.dto';
+import { BcryptProvider } from './hashing/bcrypt.provider';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(authConfig.KEY)
     private readonly authConfiguration: ConfigType<typeof authConfig>,
+    private readonly userService: UsersService,
+    private readonly bcryptProvider: BcryptProvider,
   ) {}
   public isAuth: boolean = false;
   authenticate(mail: string, pwd: string) {
     console.log(this.authConfiguration);
+  }
+
+  async signUp(createUserDto: CreateUserDto) {
+    const hash = await this.bcryptProvider.hashGenerator(
+      createUserDto.password,
+    );
+    console.log(hash);
+    return this.userService.createUser(createUserDto);
   }
 
   findAll() {

@@ -16,6 +16,9 @@ import { Profile } from 'src/profile/entities/profile.entity';
 import { ConfigService } from '@nestjs/config';
 import { Console } from 'console';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
+import { PaginationProvider } from 'src/common/pagination/pagination.provider';
+import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
+import { BcryptProvider } from 'src/auth/hashing/bcrypt.provider';
 @Injectable()
 export class UsersService {
   constructor(
@@ -24,8 +27,10 @@ export class UsersService {
     @InjectRepository(Profile)
     private profileRepository: Repository<Profile>,
     private readonly configService: ConfigService,
+    private readonly paginationProvider: PaginationProvider,
+    private readonly bcyptProvider: BcryptProvider,
   ) {}
-  // public users: User[] = [{
+  // public users: User[] = [{c
   //     id: 1,
   //     name: 'John',
   //     email: 'john@gmail.com',
@@ -38,15 +43,12 @@ export class UsersService {
   //     password: '123456'
   // }];
 
-  async getUsers() {
-    // const environment = this.configService.get('ENV_MODE');
-    // console.log(environment);
+  async getUsers(paginationQueryDto: PaginationQueryDto) {
     try {
-      return await this.userRepository.find({
-        relations: {
-          // profile : true
-        },
-      });
+      return this.paginationProvider.paginateQuery(
+        paginationQueryDto,
+        this.userRepository,
+      );
     } catch (error) {
       if (error.code === 'ECONNREFUSED') {
         throw new RequestTimeoutException(
@@ -88,10 +90,15 @@ export class UsersService {
         email: userDto.email,
       },
     });
-
-    if (user)
+    if (user.length > 0) {
+      console.log(user);
       throw new ConflictException('The user with this email already exists');
-    let newUser = this.userRepository.create(userDto);
+    }
+    const pass = await this.bcyptProvider.hashGenerator(userDto.password);
+    let newUser = this.userRepository.create({
+      ...userDto,
+      password: pass,
+    });
 
     // //set profile
     // newUser.profile = newProfile;
