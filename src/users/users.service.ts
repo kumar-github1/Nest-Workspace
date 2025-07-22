@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   forwardRef,
   HttpException,
@@ -112,5 +113,11 @@ export class UsersService {
     // if(user)
     // await this.profileRepository.delete(user.profile.id);
     return { deleted: true };
+  }
+  async getUserByUsername(username: string) {
+    let user = await this.userRepository.findOneBy({ username });
+    if (!user)
+      throw new BadRequestException('the user is not found with this username');
+    return user;
   }
 }
