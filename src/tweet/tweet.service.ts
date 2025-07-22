@@ -7,8 +7,10 @@ import { Tweet } from './entities/tweet.entity';
 import { Repository } from 'typeorm';
 import { Hashtag } from 'src/hashtag/entities/hashtag.entity';
 import { HashtagService } from 'src/hashtag/hashtag.service';
-import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { PaginationQueryDto } from '../common/pagination/pagination-query.dto';
 import { TweetQueryDto } from './dto/tweet-query.dto';
+import { PaginationProvider } from 'src/common/pagination/pagination.provider';
+import { paginated } from 'src/common/pagination/paginated.interface';
 @Injectable()
 export class TweetService {
   constructor(
@@ -16,6 +18,7 @@ export class TweetService {
     private readonly hashtagService: HashtagService,
     @InjectRepository(Tweet)
     private tweetRepository: Repository<Tweet>,
+    private readonly paginationProvider: PaginationProvider,
   ) {}
 
   async createTweet(createTweetDto: CreateTweetDto) {
@@ -43,23 +46,23 @@ export class TweetService {
     });
   }
 
-  async findOne(id: number, paginationQueryDto: PaginationQueryDto) {
+  async findOne(
+    id: number,
+    paginationQueryDto: PaginationQueryDto,
+  ): Promise<paginated<Tweet>> {
     // console.log(paginationQueryDto);
     let user = await this.userService.getUserById(id);
     if (!user)
       throw new NotFoundException(`The user with userId ${id} is not found`);
-    return this.tweetRepository.find({
-      where: {
+    return this.paginationProvider.paginateQuery(
+      paginationQueryDto,
+      this.tweetRepository,
+      {
         user: {
           id,
         },
       },
-      relations: {
-        user: true,
-      },
-      skip: (paginationQueryDto.page - 1) * paginationQueryDto.limit,
-      take: paginationQueryDto.limit,
-    });
+    );
   }
 
   async update(updateTweetDto: UpdateTweetDto) {

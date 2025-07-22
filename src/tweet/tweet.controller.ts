@@ -12,7 +12,7 @@ import {
 import { TweetService } from './tweet.service';
 import { CreateTweetDto } from './dto/create-tweet.dto';
 import { UpdateTweetDto } from './dto/update-tweet.dto';
-import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { PaginationQueryDto } from '../common/pagination/pagination-query.dto';
 import { TweetQueryDto } from './dto/tweet-query.dto';
 
 @Controller('tweet')

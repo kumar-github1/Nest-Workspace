@@ -1,6 +1,6 @@
 import { IntersectionType } from '@nestjs/mapped-types';
 import { IsOptional } from 'class-validator';
-import { PaginationQueryDto } from './pagination-query.dto';
+import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 
 class TweetBaseQuery {
   @IsOptional()
