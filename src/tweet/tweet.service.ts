@@ -11,6 +11,7 @@ import { PaginationQueryDto } from '../common/pagination/pagination-query.dto';
 import { TweetQueryDto } from './dto/tweet-query.dto';
 import { PaginationProvider } from 'src/common/pagination/pagination.provider';
 import { paginated } from 'src/common/pagination/paginated.interface';
+import { ActiveUserInterface } from 'src/interfaces/activeUser.interface';
 @Injectable()
 export class TweetService {
   constructor(
@@ -21,22 +22,22 @@ export class TweetService {
     private readonly paginationProvider: PaginationProvider,
   ) {}
 
-  // async createTweet(createTweetDto: CreateTweetDto) {
-  //   let user = await this.userService.getUserById(createTweetDto.userId);
-  //   if (!user) throw new Error('user not found');
-  //   let hashtags = [];
-  //   if (createTweetDto.hashtags) {
-  //     let hashtags = await this.hashtagService.findHashtags(
-  //       createTweetDto.hashtags,
-  //     );
-  //   }
-  //   let tweet = this.tweetRepository.create({
-  //     ...createTweetDto,
-  //     user,
-  //     hashtags,
-  //   });
-  //   return await this.tweetRepository.save(tweet);
-  // }
+  async createTweet(createTweetDto: CreateTweetDto, userID: number) {
+    let user = await this.userService.getUserById(userID);
+    if (!user) throw new Error('user not found');
+    let hashtags = [];
+    if (createTweetDto.hashtags) {
+      let hashtags = await this.hashtagService.findHashtags(
+        createTweetDto.hashtags,
+      );
+    }
+    let tweet = this.tweetRepository.create({
+      ...createTweetDto,
+      user,
+      hashtags,
+    });
+    return await this.tweetRepository.save(tweet);
+  }
 
   async findAll() {
     return await this.tweetRepository.find({

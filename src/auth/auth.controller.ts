@@ -15,6 +15,7 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { CreateUserDto } from 'src/users/dto/createUser.dto';
 import { LoginDto } from './dto/login.dto';
 import { AllowAnonymous } from './decorators/allow-anonymous.decorator';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +31,11 @@ export class AuthController {
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signUp(createUserDto);
+  }
+  @AllowAnonymous()
+  @Post('refresh-token')
+  createRefreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.createRefreshToken(refreshTokenDto);
   }
   // below not used
   @Get()

@@ -22,9 +22,9 @@ export class TweetController {
   constructor(private readonly tweetService: TweetService) {}
 
   @Post()
-  create(@Body() createTweetDto: CreateTweetDto, @ActiveUser('email') user) {
+  create(@Body() createTweetDto: CreateTweetDto, @ActiveUser() user) {
     console.log(user);
-    // return this.tweetService.createTweet(createTweetDto);
+    return this.tweetService.createTweet(createTweetDto, user);
   }
 
   @Get()
