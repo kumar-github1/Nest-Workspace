@@ -21,22 +21,22 @@ export class TweetService {
     private readonly paginationProvider: PaginationProvider,
   ) {}
 
-  async createTweet(createTweetDto: CreateTweetDto) {
-    let user = await this.userService.getUserById(createTweetDto.userId);
-    if (!user) throw new Error('user not found');
-    let hashtags = [];
-    if (createTweetDto.hashtags) {
-      let hashtags = await this.hashtagService.findHashtags(
-        createTweetDto.hashtags,
-      );
-    }
-    let tweet = this.tweetRepository.create({
-      ...createTweetDto,
-      user,
-      hashtags,
-    });
-    return await this.tweetRepository.save(tweet);
-  }
+  // async createTweet(createTweetDto: CreateTweetDto) {
+  //   let user = await this.userService.getUserById(createTweetDto.userId);
+  //   if (!user) throw new Error('user not found');
+  //   let hashtags = [];
+  //   if (createTweetDto.hashtags) {
+  //     let hashtags = await this.hashtagService.findHashtags(
+  //       createTweetDto.hashtags,
+  //     );
+  //   }
+  //   let tweet = this.tweetRepository.create({
+  //     ...createTweetDto,
+  //     user,
+  //     hashtags,
+  //   });
+  //   return await this.tweetRepository.save(tweet);
+  // }
 
   async findAll() {
     return await this.tweetRepository.find({
